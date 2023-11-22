@@ -4,9 +4,6 @@ on:
   push:
     branches: [ "main" ]
 
-env:
-  GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
-
 jobs:
   Explore-GitHub-Actions:
     runs-on: ubuntu-latest
@@ -36,9 +33,9 @@ jobs:
           echo "VERSION=$VER" >> $GITHUB_ENV
       - name: Build container 
         run: |-
-          cd ${{ github.workspace }}/src/frontend-simple/
+          cd ${{ github.workspace }}/src/deployment/
           echo "Display version"
           echo ${{ env.VERSION }}
-          docker build -t gcr.io/$GCLOUD_PROJECT/test-app-frontend-simple:${{ env.VERSION }} .
-          docker push gcr.io/$GCLOUD_PROJECT/test-app-frontend-simple:${{ env.VERSION }}
+          docker build -t gcr.io/$GCLOUD_PROJECT/test-app-deployment:${{ env.VERSION }} .
+          docker push gcr.io/$GCLOUD_PROJECT/test-app-deployment:${{ env.VERSION }}
       - run: echo "🍏 This job's status is ${{ job.status }}."
