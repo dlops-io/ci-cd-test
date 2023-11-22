@@ -3,6 +3,10 @@ run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
 on:
   push:
     branches: [ "main" ]
+
+env:
+  GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
+
 jobs:
   Explore-GitHub-Actions:
     runs-on: ubuntu-latest
