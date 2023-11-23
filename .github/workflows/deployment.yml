@@ -49,5 +49,5 @@ jobs:
             -e USE_GKE_GCLOUD_AUTH_PLUGIN=True \
             -e GCP_PROJECT=ac215-project \
             -e GCP_ZONE=us-central1-a \
-            test-app-deployment deploy-from-action.sh
+            test-app-deployment deploy-from-actions.sh
       - run: echo "🍏 This job's status is ${{ job.status }}."
