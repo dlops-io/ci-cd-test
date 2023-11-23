@@ -41,8 +41,8 @@ jobs:
         run: |-
           docker run --rm --name test-app-deployment \
             -v /var/run/docker.sock:/var/run/docker.sock \
-            -v "$HOME/.ssh":/home/app/.ssh \
-            -v ${{ github.workspace }}/src/frontend-simple":/frontend-simple \
+            -v $HOME/.ssh:/home/app/.ssh \
+            -v ${{ github.workspace }}/src/frontend-simple:/frontend-simple \
             --volume $GITHUB_WORKSPACE:/workspace \
             --mount type=bind,source=$GOOGLE_APPLICATION_CREDENTIALS,target=/workspace/creds.json \
             --env GOOGLE_APPLICATION_CREDENTIALS=/workspace/creds.json \
