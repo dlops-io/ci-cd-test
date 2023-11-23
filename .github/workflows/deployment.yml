@@ -36,6 +36,13 @@ jobs:
           cd ${{ github.workspace }}/src/deployment/
           echo "Display version"
           echo ${{ env.VERSION }}
-          docker build -t gcr.io/$GCLOUD_PROJECT/test-app-deployment:${{ env.VERSION }} .
-          docker push gcr.io/$GCLOUD_PROJECT/test-app-deployment:${{ env.VERSION }}
+          docker build -t test-app-deployment -f Dockerfile .
+      - name: Run container 
+        run: |-
+          docker run --rm --name test-app-deployment
+            --volume $GITHUB_WORKSPACE:/workspace
+            --mount type=bind,source=$GOOGLE_APPLICATION_CREDENTIALS,target=/workspace/creds.json 
+            --env GOOGLE_APPLICATION_CREDENTIALS=/workspace/creds.json
+            --env CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE=/workspace/creds.json
+            --env GOOGLE_GHA_CREDS_PATH=/workspace/creds.json
       - run: echo "🍏 This job's status is ${{ job.status }}."
