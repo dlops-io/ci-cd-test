@@ -7,7 +7,7 @@
     cluster_name: "test-app-cluster"
     machine_type: "n2d-standard-2"
     machine_disk_size: 30
-    initial_node_count: 2
+    initial_node_count: 1
 
   tasks:
   - name: "Create a GKE cluster"
@@ -135,6 +135,7 @@
                 ports:
                 - containerPort: 8080
                   protocol: TCP
+              restartPolicy: Always
     when: cluster_state == "present"
 
   - name: "Create Service for Frontend"
@@ -148,9 +149,9 @@
           namespace: "{{cluster_name}}-namespace"
         spec:
           ports:
-          - port: 8080
+          - port: 80
             protocol: TCP
-            targetPort: 80
+            targetPort: 8080
           selector:
             run: frontend
           type: NodePort
@@ -194,7 +195,7 @@
           annotations:
             kubernetes.io/ingress.class: "nginx"
             nginx.ingress.kubernetes.io/ssl-redirect: "false"
-            nginx.org/rewrites: "serviceName=frontend rewrite=/;serviceName=api rewrite=/"
+            nginx.org/rewrites: "serviceName=frontend rewrite=/"
         spec:
           rules:
           - host: "{{ nginx_ingress_ip }}.sslip.io" # Host requires a domain and not just an IP

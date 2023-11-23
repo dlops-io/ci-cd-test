@@ -41,3 +41,7 @@ ansible-playbook deploy-create-instance.yml -i inventory.yml --extra-vars cluste
 ```
 ansible-playbook deploy-k8s-cluster.yml -i inventory.yml --extra-vars cluster_state=present
 ```
+
+```
+ansible-playbook update-k8s-cluster.yml -i inventory.yml
+```

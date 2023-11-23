@@ -1,0 +1,70 @@
+---
+- name: "Update Kubernetes Cluster"
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    cluster_name: "test-app-cluster"
+  
+  tasks:
+  - name: "Connect to cluster (update kubeconfig)"
+    shell: "gcloud container clusters get-credentials {{ cluster_name }} --zone {{ gcp_zone }} --project {{ gcp_project }}"
+  
+  - name: "Copy docker tag file"
+    copy:
+      src: .docker-tag
+      dest: .docker-tag
+      mode: 0644
+
+  - name: "Get docker tag"
+    shell: "cat .docker-tag"
+    register: tag
+
+  - name: "Print tag"
+    debug:
+      var: tag
+  
+  - name: "Create Deployment for Frontend"
+    k8s:
+      state: present
+      definition:
+        apiVersion: v1
+        kind: Deployment
+        metadata:
+          name: frontend
+          namespace: "{{cluster_name}}-namespace"
+        spec:
+          selector:
+            matchLabels:
+              run: frontend
+          template:
+            metadata:
+              labels:
+                run: frontend
+            spec:
+              containers:
+              - image: "gcr.io/{{ gcp_project }}/test-app-frontend-simple:{{ tag.stdout}}"
+                imagePullPolicy: IfNotPresent
+                name: frontend
+                ports:
+                - containerPort: 8080
+                  protocol: TCP
+              restartPolicy: Always
+  
+  # - name: "Create Service for Frontend"
+  #   k8s:
+  #     state: present
+  #     definition:
+  #       apiVersion: v1
+  #       kind: Service
+  #       metadata:
+  #         name: frontend
+  #         namespace: "{{cluster_name}}-namespace"
+  #       spec:
+  #         ports:
+  #         - port: 80
+  #           protocol: TCP
+  #           targetPort: 8080
+  #         selector:
+  #           run: frontend
+  #         type: NodePort
