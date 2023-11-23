@@ -46,5 +46,5 @@ jobs:
             -e USE_GKE_GCLOUD_AUTH_PLUGIN=True \
             -e GCP_PROJECT=ac215-project \
             -e GCP_ZONE=us-central1-a \
-            test-app-deployment
+            test-app-deployment ansible-playbook deploy-docker-images.yml -i inventory.yml
       - run: echo "🍏 This job's status is ${{ job.status }}."
