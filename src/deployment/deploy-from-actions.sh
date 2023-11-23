@@ -1,0 +1,1 @@
+ansible-playbook deploy-docker-images.yml -i inventory.yml

@@ -40,11 +40,14 @@ jobs:
       - name: Run container 
         run: |-
           docker run --rm --name test-app-deployment \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            -v "$HOME/.ssh":/home/app/.ssh \
+            -v ${{ github.workspace }}/src/frontend-simple":/frontend-simple \
             --volume $GITHUB_WORKSPACE:/workspace \
             --mount type=bind,source=$GOOGLE_APPLICATION_CREDENTIALS,target=/workspace/creds.json \
             --env GOOGLE_APPLICATION_CREDENTIALS=/workspace/creds.json \
             -e USE_GKE_GCLOUD_AUTH_PLUGIN=True \
             -e GCP_PROJECT=ac215-project \
             -e GCP_ZONE=us-central1-a \
-            test-app-deployment ansible-playbook deploy-docker-images.yml -i inventory.yml
+            test-app-deployment deploy-from-action.sh
       - run: echo "🍏 This job's status is ${{ job.status }}."
