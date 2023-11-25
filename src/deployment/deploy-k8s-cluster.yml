@@ -97,18 +97,18 @@
       var: tag
     when: cluster_state == "present"
   
-  # - name: Importing credentials as a Secret
-  #   shell: |
-  #     #!/bin/bash
-  #     kubectl create secret generic gcp-service-key --from-file=gcp-service.json=../secrets/gcp-service.json --namespace="{{cluster_name}}-namespace"
-  #   register: create_secret_op
-  #   ignore_errors: yes
-  #   when: cluster_state == "present"
+  - name: Importing credentials as a Secret
+    shell: |
+      #!/bin/bash
+      kubectl create secret generic gcp-service-key --from-file=gcp-service.json=../secrets/gcp-service.json --namespace="{{cluster_name}}-namespace"
+    register: create_secret_op
+    ignore_errors: yes
+    when: cluster_state == "present"
   
-  # - name: "Print Create Secret Output"
-  #   debug:
-  #     var: create_secret_op
-  #   when: cluster_state == "present"
+  - name: "Print Create Secret Output"
+    debug:
+      var: create_secret_op
+    when: cluster_state == "present"
   
   - name: "Create Deployment for Frontend"
     k8s:
@@ -137,6 +137,49 @@
                   protocol: TCP
               restartPolicy: Always
     when: cluster_state == "present"
+  
+  - name: "Create Deployment for API Service"
+    k8s:
+      state: present
+      definition:
+        apiVersion: v1
+        kind: Deployment
+        metadata:
+          name: api
+          namespace: "{{cluster_name}}-namespace"
+        spec:
+          selector:
+            matchLabels:
+              run: api
+          template:
+            metadata:
+              labels:
+                run: api
+            spec:
+              volumes:
+                - name: persistent-vol
+                  emptyDir: {}
+                - name: google-cloud-key
+                  secret:
+                    secretName: gcp-service-key
+              containers:
+              - image: gcr.io/{{ gcp_project }}/test-app-api-service:{{ tag.stdout}}
+                imagePullPolicy: IfNotPresent
+                name: api
+                ports:
+                - containerPort: 9000
+                  protocol: TCP
+                volumeMounts:
+                  - name: persistent-vol
+                    mountPath: /persistent
+                  - name: google-cloud-key
+                    mountPath: /secrets
+                env:
+                  - name: GOOGLE_APPLICATION_CREDENTIALS
+                    value: /secrets/gcp-service.json
+                  - name: GCS_BUCKET_NAME
+                    value: mushroom-app-models
+    when: cluster_state == "present"
 
   - name: "Create Service for Frontend"
     k8s:
@@ -154,6 +197,25 @@
             targetPort: 8080
           selector:
             run: frontend
+          type: NodePort
+    when: cluster_state == "present"
+  
+  - name: "Create Service for API Service"
+    k8s:
+      state: present
+      definition:
+        apiVersion: v1
+        kind: Service
+        metadata:
+          name: api
+          namespace: "{{cluster_name}}-namespace"
+        spec:
+          ports:
+          - port: 9000
+            protocol: TCP
+            targetPort: 9000
+          selector:
+            run: api
           type: NodePort
     when: cluster_state == "present"
 
@@ -195,7 +257,7 @@
           annotations:
             kubernetes.io/ingress.class: "nginx"
             nginx.ingress.kubernetes.io/ssl-redirect: "false"
-            nginx.org/rewrites: "serviceName=frontend rewrite=/"
+            nginx.org/rewrites: "serviceName=frontend rewrite=/;serviceName=api rewrite=/"
         spec:
           rules:
           - host: "{{ nginx_ingress_ip }}.sslip.io" # Host requires a domain and not just an IP
@@ -208,4 +270,11 @@
                     name: frontend
                     port:
                       number: 80
+              - path: /api/
+                pathType: Prefix
+                backend:
+                  service:
+                    name: api
+                    port:
+                      number: 9000
     when: cluster_state == "present"
