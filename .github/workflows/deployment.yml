@@ -47,7 +47,7 @@ jobs:
             -e USE_GKE_GCLOUD_AUTH_PLUGIN=True \
             -e GCP_PROJECT=ac215-project \
             -e GCP_ZONE=us-central1-a \
-            test-app-deployment deploy-from-actions.sh
+            test-app-deployment sh deploy-from-actions.sh
       - name: Run Data Collector
         if: contains(github.event.head_commit.message, '/run-data-collector')
         run: |-
