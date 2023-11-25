@@ -70,7 +70,7 @@ def model_training(
 def model_deploy(
     bucket_name: str = "",
 ):
-    print("Model Training Job")
+    print("Model Deploy Job")
 
     import google.cloud.aiplatform as aip
 
@@ -95,7 +95,7 @@ def model_deploy(
     endpoint = deployed_model.deploy(
         deployed_model_display_name=display_name,
         traffic_split={"0": 100},
-        machine_type="n1-standard-4",
+        machine_type="n1-standard-2",
         accelerator_count=0,
         min_replica_count=1,
         max_replica_count=1,
