@@ -6,7 +6,7 @@ on:
 
 jobs:
   Explore-GitHub-Actions:
-    if: contains(github.event.head_commit.message, '/deploy-app')
+    if: contains(github.event.head_commit.message, '/run-')
     runs-on: ubuntu-latest
     steps:
       - run: echo "Comment ${{ github.event.head_commit.message }}"
@@ -29,17 +29,12 @@ jobs:
       - name: List files in the repository
         run: |
           ls ${{ github.workspace }}
-      - name: Set variables
-        run: |
-          VER=$(cat ${{ github.workspace }}/src/deployment/.docker-tag)
-          echo "VERSION=$VER" >> $GITHUB_ENV
       - name: Build container 
         run: |-
           cd ${{ github.workspace }}/src/deployment/
-          echo "Display version"
-          echo ${{ env.VERSION }}
           docker build -t test-app-deployment -f Dockerfile .
-      - name: Run container 
+      - name: Run container
+        if: contains(github.event.head_commit.message, '/run-deploy-app')
         run: |-
           docker run --rm --name test-app-deployment \
             -v /var/run/docker.sock:/var/run/docker.sock \
