@@ -6,6 +6,7 @@ on:
 
 jobs:
   Explore-GitHub-Actions:
+    if: (github.event.issue.pull_request != null) && contains(github.event.comment.body, '/deploy-app')
     runs-on: ubuntu-latest
     steps:
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
