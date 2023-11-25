@@ -30,7 +30,7 @@ async def get_index():
 
     return {
         "message": "Welcome to the API Service",
-        "version": "v 2.5",
+        "version": "v 2.6",
         "env_list": env_list,
         "tf_version": tf.__version__,
     }

@@ -17,5 +17,6 @@ then
     #/bin/bash
     pipenv shell
 else
-  /bin/bash $args
+  #/bin/bash $args
+  pipenv run $args
 fi
