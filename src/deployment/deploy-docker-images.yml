@@ -35,6 +35,32 @@
       repository: gcr.io/{{ gcp_project }}/test-app-api-service:{{ tag.stdout}}
       push: yes
       source: local
+  - name: Build data-collector container image
+    community.general.docker_image:
+      build:
+        path: /data-collector
+        platform: linux/amd64/v2
+      name: gcr.io/{{ gcp_project }}/test-app-data-collector:{{ tag.stdout}}
+      source: build
+  - name: Push data-collector image to GCR
+    community.general.docker_image:
+      name: gcr.io/{{ gcp_project }}/test-app-data-collector:{{ tag.stdout}}
+      repository: gcr.io/{{ gcp_project }}/test-app-data-collector:{{ tag.stdout}}
+      push: yes
+      source: local
+  - name: Build data-processor container image
+    community.general.docker_image:
+      build:
+        path: /data-processor
+        platform: linux/amd64/v2
+      name: gcr.io/{{ gcp_project }}/test-app-data-processor:{{ tag.stdout}}
+      source: build
+  - name: Push data-processor image to GCR
+    community.general.docker_image:
+      name: gcr.io/{{ gcp_project }}/test-app-data-processor:{{ tag.stdout}}
+      repository: gcr.io/{{ gcp_project }}/test-app-data-processor:{{ tag.stdout}}
+      push: yes
+      source: local
   - name: "Save docker tag"
     shell: echo {{ tag.stdout}} > .docker-tag
   - name: "Remove all unused containers"
