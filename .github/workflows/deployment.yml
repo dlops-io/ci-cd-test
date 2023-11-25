@@ -68,5 +68,5 @@ jobs:
             -e GCS_SERVICE_ACCOUNT=ml-workflow@ac215-project.iam.gserviceaccount.com \
             -e GCP_REGION=us-central1 \
             -e GCS_PACKAGE_URI=gs://mushroom-app-trainer-code \
-            test-app-deployment pipenv run python cli.py --data_collector
+            test-app-deployment python cli.py --data_collector
       - run: echo "🍏 This job's status is ${{ job.status }}."
