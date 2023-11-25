@@ -1,6 +1,7 @@
 import os
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
+import tensorflow as tf
 
 # Setup FastAPI app
 app = FastAPI(title="API Server", description="API Server", version="v1")
@@ -31,4 +32,5 @@ async def get_index():
         "message": "Welcome to the API Service",
         "version": "v 2.5",
         "env_list": env_list,
+        "tf_version": tf.__version__,
     }
