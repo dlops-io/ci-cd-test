@@ -13,44 +13,44 @@ jobs:
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
       - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
       - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
-      # - name: Check out repository code
-      #   uses: actions/checkout@v4
-      # - id: 'auth'
-      #   uses: google-github-actions/auth@v1
-      #   with:
-      #     credentials_json: '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}' #Copy contents of deployment.json in GitHub Secrets
-      # - name: Configure Google Cloud SDK
-      #   uses: google-github-actions/setup-gcloud@v1
-      # - name: Configure Docker Client
-      #   run: |-
-      #     gcloud auth configure-docker # --quiet #authenticate to gcr
-      # - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
-      # - run: echo "🖥️ The workflow is now ready to test your code on the runner."
-      # - name: List files in the repository
-      #   run: |
-      #     ls ${{ github.workspace }}
-      # - name: Set variables
-      #   run: |
-      #     VER=$(cat ${{ github.workspace }}/src/deployment/.docker-tag)
-      #     echo "VERSION=$VER" >> $GITHUB_ENV
-      # - name: Build container 
-      #   run: |-
-      #     cd ${{ github.workspace }}/src/deployment/
-      #     echo "Display version"
-      #     echo ${{ env.VERSION }}
-      #     docker build -t test-app-deployment -f Dockerfile .
-      # - name: Run container 
-      #   run: |-
-      #     docker run --rm --name test-app-deployment \
-      #       -v /var/run/docker.sock:/var/run/docker.sock \
-      #       -v $HOME/.ssh:/home/app/.ssh \
-      #       -v ${{ github.workspace }}/src/frontend-simple:/frontend-simple \
-      #       -v ${{ github.workspace }}/src/api-service:/api-service \
-      #       --volume $GITHUB_WORKSPACE:/workspace \
-      #       --mount type=bind,source=$GOOGLE_APPLICATION_CREDENTIALS,target=/secrets/deployment.json \
-      #       --env GOOGLE_APPLICATION_CREDENTIALS=/secrets/deployment.json \
-      #       -e USE_GKE_GCLOUD_AUTH_PLUGIN=True \
-      #       -e GCP_PROJECT=ac215-project \
-      #       -e GCP_ZONE=us-central1-a \
-      #       test-app-deployment deploy-from-actions.sh
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - id: 'auth'
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}' #Copy contents of deployment.json in GitHub Secrets
+      - name: Configure Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+      - name: Configure Docker Client
+        run: |-
+          gcloud auth configure-docker # --quiet #authenticate to gcr
+      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
+      - run: echo "🖥️ The workflow is now ready to test your code on the runner."
+      - name: List files in the repository
+        run: |
+          ls ${{ github.workspace }}
+      - name: Set variables
+        run: |
+          VER=$(cat ${{ github.workspace }}/src/deployment/.docker-tag)
+          echo "VERSION=$VER" >> $GITHUB_ENV
+      - name: Build container 
+        run: |-
+          cd ${{ github.workspace }}/src/deployment/
+          echo "Display version"
+          echo ${{ env.VERSION }}
+          docker build -t test-app-deployment -f Dockerfile .
+      - name: Run container 
+        run: |-
+          docker run --rm --name test-app-deployment \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            -v $HOME/.ssh:/home/app/.ssh \
+            -v ${{ github.workspace }}/src/frontend-simple:/frontend-simple \
+            -v ${{ github.workspace }}/src/api-service:/api-service \
+            --volume $GITHUB_WORKSPACE:/workspace \
+            --mount type=bind,source=$GOOGLE_APPLICATION_CREDENTIALS,target=/secrets/deployment.json \
+            --env GOOGLE_APPLICATION_CREDENTIALS=/secrets/deployment.json \
+            -e USE_GKE_GCLOUD_AUTH_PLUGIN=True \
+            -e GCP_PROJECT=ac215-project \
+            -e GCP_ZONE=us-central1-a \
+            test-app-deployment deploy-from-actions.sh
       - run: echo "🍏 This job's status is ${{ job.status }}."
