@@ -45,3 +45,5 @@ ansible-playbook deploy-k8s-cluster.yml -i inventory.yml --extra-vars cluster_st
 ```
 ansible-playbook update-k8s-cluster.yml -i inventory.yml
 ```
+
+

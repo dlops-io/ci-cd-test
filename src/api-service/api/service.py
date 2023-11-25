@@ -29,6 +29,6 @@ async def get_index():
 
     return {
         "message": "Welcome to the API Service",
-        "version": "v 2.3",
+        "version": "v 2.4",
         "env_list": env_list,
     }
