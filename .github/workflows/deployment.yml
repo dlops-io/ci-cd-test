@@ -29,11 +29,11 @@ jobs:
       - name: List files in the repository
         run: |
           ls ${{ github.workspace }}
-      - name: Build container 
+      - name: Build Deployment Container 
         run: |-
           cd ${{ github.workspace }}/src/deployment/
           docker build -t test-app-deployment -f Dockerfile .
-      - name: Run container
+      - name: Run Deploy App
         if: contains(github.event.head_commit.message, '/run-deploy-app')
         run: |-
           docker run --rm --name test-app-deployment \
@@ -48,4 +48,23 @@ jobs:
             -e GCP_PROJECT=ac215-project \
             -e GCP_ZONE=us-central1-a \
             test-app-deployment deploy-from-actions.sh
+      - name: Run Data Collector
+        if: contains(github.event.head_commit.message, '/run-data-collector')
+        run: |-
+          docker run --rm --name test-app-deployment \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            -v ${{ github.workspace }}/src/frontend-simple:/frontend-simple \
+            -v ${{ github.workspace }}/src/api-service:/api-service \
+            -v ${{ github.workspace }}/src/data-collector:/data-collector \
+            -v ${{ github.workspace }}/src/data-processor:/data-processor \
+            --mount type=bind,source=$GOOGLE_APPLICATION_CREDENTIALS,target=/secrets/deployment.json \
+            -e GOOGLE_APPLICATION_CREDENTIALS=/secrets/deployment.json \
+            -e USE_GKE_GCLOUD_AUTH_PLUGIN=True \
+            -e GCP_PROJECT=ac215-project \
+            -e GCP_ZONE=us-central1-a \
+            -e GCS_BUCKET_NAME=mushroom-app-ml-workflow-demo \
+            -e GCS_SERVICE_ACCOUNT=ml-workflow@ac215-project.iam.gserviceaccount.com \
+            -e GCP_REGION=us-central1 \
+            -e GCS_PACKAGE_URI=gs://mushroom-app-trainer-code \
+            test-app-deployment pipenv run python cli.py --data_collector
       - run: echo "🍏 This job's status is ${{ job.status }}."
