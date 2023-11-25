@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
@@ -22,4 +23,12 @@ async def startup():
 # Routes
 @app.get("/")
 async def get_index():
-    return {"message": "Welcome to the API Service v 2.0"}
+    env_list = []
+    for name, value in os.environ.items():
+        env_list.append(f"{name}: {value}")
+
+    return {
+        "message": "Welcome to the API Service",
+        "version": "v 2.3",
+        "env_list": env_list,
+    }

@@ -24,7 +24,7 @@
     debug:
       var: tag
   
-  - name: "Create Deployment for Frontend"
+  - name: "Update Deployment for Frontend"
     k8s:
       state: present
       definition:
@@ -51,20 +51,32 @@
                   protocol: TCP
               restartPolicy: Always
   
-  # - name: "Create Service for Frontend"
-  #   k8s:
-  #     state: present
-  #     definition:
-  #       apiVersion: v1
-  #       kind: Service
-  #       metadata:
-  #         name: frontend
-  #         namespace: "{{cluster_name}}-namespace"
-  #       spec:
-  #         ports:
-  #         - port: 80
-  #           protocol: TCP
-  #           targetPort: 8080
-  #         selector:
-  #           run: frontend
-  #         type: NodePort
+  - name: "Update Deployment for API Service"
+    k8s:
+      state: present
+      definition:
+        apiVersion: v1
+        kind: Deployment
+        metadata:
+          name: api
+          namespace: "{{cluster_name}}-namespace"
+        spec:
+          selector:
+            matchLabels:
+              run: api
+          template:
+            metadata:
+              labels:
+                run: api
+            spec:
+              volumes:
+                - name: persistent-vol
+                  emptyDir: {}
+                - name: google-cloud-key
+                  secret:
+                    secretName: gcp-service-key
+              containers:
+              - image: gcr.io/{{ gcp_project }}/test-app-api-service:{{ tag.stdout}}
+                imagePullPolicy: IfNotPresent
+                name: api
+              restartPolicy: Always
